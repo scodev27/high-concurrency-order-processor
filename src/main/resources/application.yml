@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: high-concurrency-order-processor
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/order_processor
+    username: postgres
+    password: postgres
+    hikari:
+      # Kept deliberately small: the whole point of this project is that
+      # workers only ever hold a connection for two short transactions,
+      # never while doing the heavy work. A small pool is enough to sustain
+      # high throughput precisely BECAUSE connections are held so briefly.
+      maximum-pool-size: 10
+      minimum-idle: 5
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  threads:
+    virtual:
+      enabled: true
+
+order-processor:
+  batch-size: 10
+  worker-count: 4
+  poll-interval-ms: 3000
+  simulated-work-ms: 2000
+
+logging:
+  level:
+    com.example.orderprocessor: INFO
